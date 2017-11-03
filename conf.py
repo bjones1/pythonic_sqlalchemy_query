@@ -173,6 +173,10 @@ exclude_patterns = [
     'sphinx-enki-info.txt',
     # Python files.
     '*.egg-info',
+    'build',
+    'dist',
+    '__pycache__',
+    '.cache',
 ]
 
 # `default_role <http://sphinx-doc.org/config.html#confval-default_role>`_: The

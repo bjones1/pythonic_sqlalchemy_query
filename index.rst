@@ -3,9 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
 The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query.py>` provides concise, Pythonic query syntax for SQLAlchemy.
-
 
 .. toctree::
    :caption: Quick start

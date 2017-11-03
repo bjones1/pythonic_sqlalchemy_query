@@ -19,6 +19,7 @@
 # ************************************************************************************
 # pythonic_sqlalchemy_query.py - Provide concise, Pythonic query syntax for SQLAlchemy
 # ************************************************************************************
+#
 # Imports
 # =======
 # These are listed in the order prescribed by `PEP 8
@@ -43,7 +44,7 @@ from sqlalchemy.inspection import inspect
 
 # Define the version of this module.
 __version__ = '1.0.0'
-#
+
 # .. _QueryMaker:
 #
 # QueryMaker
