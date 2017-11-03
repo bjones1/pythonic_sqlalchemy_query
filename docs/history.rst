@@ -4,7 +4,11 @@ History
 
     -   No changes yet.
 
--   1.0.0: TBD.
+-   1.0.1: 3-Nov-2017
+
+    -   Allow access to Query variables and special methods from a _QueryWrapper.
+
+-   1.0.0: 3-Nov-2017
 
     -   Inital release.
 
