@@ -1,8 +1,35 @@
-# *********************************************************************************
-# pythonic_sqlalchemy_query - Proivde concise, Pythonic query syntax for SQLAlchemy
-# *********************************************************************************
+# .. License
+#
+#   pythonic_sqlalchemy_query - Provide concise, Pythonic query syntax for SQLAlchemy
+#   Copyright (C) 2017  Bryan A. Jones
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# ************************************************************************************
+# pythonic_sqlalchemy_query.py - Provide concise, Pythonic query syntax for SQLAlchemy
+# ************************************************************************************
+# Imports
+# =======
+# These are listed in the order prescribed by `PEP 8
+# <http://www.python.org/dev/peps/pep-0008/#imports>`_.
+#
+# Standard library
+# ----------------
 import inspect as py_inspect
-
+#
+# Third-party imports
+# -------------------
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
@@ -13,6 +40,11 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.util import class_mapper
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
+
+# Define the version of this module.
+__version__ = '1.0.0'
+#
+# .. _QueryMaker:
 #
 # QueryMaker
 # ==========
@@ -26,7 +58,7 @@ from sqlalchemy.inspection import inspect
 # - Iteration: ``for x in session.User['jack'].addresses`` iterates over the results of the query.
 # - Query access: ``User['jack'].addresses.q`` returns a Query-like object. Any Query_ method can be invoked on it.
 #
-# See the `demonstration and unit tests`_ for examples and some less-used methods.
+# See the `demonstration and unit tests` for examples and some less-used methods.
 #
 # This works by translating class instances in a query/select, indexes into filters, and columns/relationships into joins. The following code shows the Pythonic syntax on the first line, followed by the resulting translation into SQLAlchemy performed by this class on the next line.
 #
@@ -35,7 +67,7 @@ from sqlalchemy.inspection import inspect
 #
 #   User                        ['jack']                   .addresses
 #   Query([]).select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
-class QueryMaker:
+class QueryMaker(object):
     def __init__(self,
       # An optional `Declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ to query.
       declarative_class=None,
@@ -145,7 +177,7 @@ class QueryMaker:
 # _QueryWrapper
 # -------------
 # This class behaves mostly like a Query_. However, if the return value of a method is a Query_, it returns a QueryMaker_ object instead. It's intended for internal use by QueryMaker.q.
-class _QueryWrapper:
+class _QueryWrapper(object):
     def __init__(self, query_maker):
         self._query_maker = query_maker
 
@@ -175,12 +207,16 @@ class _QueryWrapper:
 
         return _wrap_query
 #
+# .. _QueryMakerDeclarativeMeta:
+#
 # QueryMakerDeclarativeMeta
 # -------------------------
 # Turn indexing of a `Declarative class`_ into a query. For example, ``User['jack']`` is a query. See the `advanced examples` for an example of its use.
 class QueryMakerDeclarativeMeta(DeclarativeMeta):
     def __getitem__(cls, key):
         return QueryMaker(cls)[key]
+#
+# .. _QueryMakerQuery:
 #
 # QueryMakerQuery
 # ---------------
@@ -189,9 +225,11 @@ class QueryMakerQuery(Query):
     def query_maker(self, declarative_class=None):
         return QueryMaker(declarative_class, self)
 #
+# .. _QueryMakerSession:
+#
 # QueryMakerSession
 # -----------------
-# Create a Session which recognizes declarative classes as an attribute. This enables ``session.User['jack']``. See the `database setup`_ for an example of its use.
+# Create a Session which recognizes declarative classes as an attribute. This enables ``session.User['jack']``. See the `database setup` for an example of its use.
 class QueryMakerSession(Session):
     def __getattr__(self, name):
         # TODO: Shady. I don't see any other way to accomplish this, though.

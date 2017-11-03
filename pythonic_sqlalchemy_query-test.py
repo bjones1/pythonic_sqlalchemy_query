@@ -1,3 +1,21 @@
+# .. License
+#
+#   pythonic_sqlalchemy_query - Provide concise, Pythonic query syntax for SQLAlchemy
+#   Copyright (C) 2017  Bryan A. Jones
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 # ****************************************************************************************************
 # pythonic_sqlalchemy_query-test.py - Unit tests and demonstrations for `pythonic_sqlalchemy_query.py`
 # ****************************************************************************************************
@@ -15,17 +33,18 @@ from pythonic_sqlalchemy_query import (
 #
 # Demo code
 # =========
+# .. _Database setup:
 #
 # Database setup
 # --------------
 engine = create_engine('sqlite:///:memory:')#, echo=True)
-# See `sessionmaker <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker>`_, `query_cls <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.query_cls>`_.
+# The `QueryMakerSession` allows syntax such as ``session.User...``. For typical use, you may omit the ``query_cls=QueryMakerQuery``. See `sessionmaker <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker>`_, `query_cls <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.query_cls>`_, and `class_ <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.class_>`_.
 Session = sessionmaker(bind=engine, query_cls=QueryMakerQuery, class_=QueryMakerSession)
 session = Session()
 #
 # Model
 # -----
-# Use the QueryMakerDeclarativeMeta in our `Declarative class`_ definitions.
+# Use the `QueryMakerDeclarativeMeta` in our `declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ definitions.
 Base = declarative_base(metaclass=QueryMakerDeclarativeMeta)
 #
 # Create a simple User and Adddress based on the `tutorial <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html>`_.
@@ -78,6 +97,8 @@ jack.addresses = [
 session.add(jack)
 session.commit()
 #
+# .. _Demonstration and unit tests:
+#
 # Demonstration and unit tests
 # ----------------------------
 # Print the results of a query and optionally compare the results with the expected value.
@@ -94,7 +115,7 @@ def print_query(str_query, expected_result=None, locals_=None):
     query = _print_query(str_query, locals_)
     for _ in query:
         print(_)
-    print()
+    print('')
     if expected_result:
         assert query.all() == expected_result
     return query
@@ -155,10 +176,12 @@ def test_more_examples():
     adalias1 = aliased(Address)
     print_query("session.User.q.join(adalias1, User.addresses)['j25@yahoo.com']", [jack.addresses[1]], locals())
 
-    # Queries are generative_: ``qm`` can be re-used.
+    # Queries are generative: ``qm`` can be re-used.
     qm = session.User['jack']
     print_query("qm.addresses", jack.addresses, locals())
     print_query("qm", [jack], locals())
+#
+# .. _Advanced examples:
 #
 # Advanced examples
 # ^^^^^^^^^^^^^^^^^
@@ -166,17 +189,17 @@ def test_advanced_examples():
     # Specify exactly what to return by accessing the underlying query.
     print_query("session.User['jack'].addresses._query.add_columns(User.id, Address.id)", [(1, 1), (1, 2)] )
 
-    # If QueryMakerSession isn't used, the session can be provided at the end of the query. However, this means the ``.q`` property won't be useful (since it has no assigned session).
+    # If `QueryMakerSession` isn't used, the session can be provided at the end of the query. However, this means the ``.q`` property won't be useful (since it has no assigned session).
     print_query("User['jack'].to_query(session)", [jack])
 
-    # If the QueryMakerDeclarativeMeta_ metaclass wasn't used, this performs the equivalent of ``User['jack']`` manually.
+    # If the `QueryMakerDeclarativeMeta` metaclass wasn't used, this performs the equivalent of ``User['jack']`` manually.
     print_query("QueryMaker(User)['jack'].to_query(session)", [jack])
 
     # Add to an existing query: first, find the User named jack.
     q = session.query().select_from(User).filter(User.name == 'jack')
     # Then ask for the Address for jack@google.com.
     print_query("q.query_maker().addresses['jack@google.com']", [jack.addresses[0]], locals())
-    # Do the same manually (without relying on the QueryMakerQuery_ ``query_maker`` method).
+    # Do the same manually (without relying on the `QueryMakerQuery` ``query_maker`` method).
     print_query("QueryMaker(query=q).addresses['jack@google.com']", [jack.addresses[0]], locals())
 
     # `Baked queries <http://docs.sqlalchemy.org/en/latest/orm/extensions/baked.html>`_ are supported.
