@@ -1,6 +1,6 @@
-The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, the two queries produce identical results:
+The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, these two queries produce identical results:
 
-.. code-block:: Python
+.. code-block:: Python3
 
     pythonic_query = session.User['jack'].addresses['jack@google.com']
     traditional_query = (
@@ -11,8 +11,6 @@ The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthed
         # then joining this to the Address 'jack@google.com`.
         join(Address).filter(Address.email_address == 'jack@google.com')
 
-See the `pythonic_sqlalchemy_query module`_ for more information.
-
 Installation
 ============
 ``pip install pythonic_sqlalchemy_query``
@@ -21,7 +19,7 @@ Use with SQLAlchemy
 ===================
 For most cases:
 
-.. code-block:: Python
+.. code-block:: Python3
 
     from pythonic_sqlalchemy_query import QueryMakerSession
 
