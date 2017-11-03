@@ -19,6 +19,18 @@
 # ****************************************************************************************************
 # pythonic_sqlalchemy_query-test.py - Unit tests and demonstrations for `pythonic_sqlalchemy_query.py`
 # ****************************************************************************************************
+#
+# Imports
+# =======
+# These are listed in the order prescribed by `PEP 8
+# <http://www.python.org/dev/peps/pep-0008/#imports>`_.
+#
+# Standard library
+# ----------------
+from pprint import pprint
+
+# Third-party imports
+# -------------------
 from sqlalchemy import create_engine, ForeignKey, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -27,10 +39,12 @@ from sqlalchemy.ext import baked
 from sqlalchemy.sql.expression import bindparam
 from sqlalchemy.sql.expression import func
 
+# Local imports
+# -------------
 from pythonic_sqlalchemy_query import (
     QueryMaker, QueryMakerDeclarativeMeta, QueryMakerQuery, QueryMakerSession
 )
-#
+
 # Demo code
 # =========
 # .. _Database setup:
@@ -41,7 +55,7 @@ engine = create_engine('sqlite:///:memory:')#, echo=True)
 # The `QueryMakerSession` allows syntax such as ``session.User...``. For typical use, you may omit the ``query_cls=QueryMakerQuery``. See `sessionmaker <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker>`_, `query_cls <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.query_cls>`_, and `class_ <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.class_>`_.
 Session = sessionmaker(bind=engine, query_cls=QueryMakerQuery, class_=QueryMakerSession)
 session = Session()
-#
+
 # Model
 # -----
 # Use the `QueryMakerDeclarativeMeta` in our `declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ definitions.
@@ -96,7 +110,7 @@ jack.addresses = [
                   Address(email_address='j25@yahoo.com')]
 session.add(jack)
 session.commit()
-#
+
 # .. _Demonstration and unit tests:
 #
 # Demonstration and unit tests
@@ -119,7 +133,7 @@ def print_query(str_query, expected_result=None, locals_=None):
     if expected_result:
         assert query.all() == expected_result
     return query
-#
+
 # Traditional versus Pythonic
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 def test_traditional_versus_pythonic():
@@ -139,7 +153,7 @@ def test_traditional_versus_pythonic():
         "join(Address).filter(Address.email_address == 'jack@google.com')"
     )
     print_query(traditional_query, [jack.addresses[0]])
-#
+
 # More examples
 # ^^^^^^^^^^^^^
 def test_more_examples():
@@ -180,7 +194,16 @@ def test_more_examples():
     qm = session.User['jack']
     print_query("qm.addresses", jack.addresses, locals())
     print_query("qm", [jack], locals())
-#
+
+    # Properties and variables can be accessed as usual.
+    cds_str = "session.User['jack'].fullname.q.column_descriptions"
+    print('-'*78)
+    print('Code: {}\nResult:'.format(cds_str))
+    cds = eval(cds_str)
+    assert cds[0]['name'] == 'fullname'
+    pprint(cds)
+    print('')
+
 # .. _Advanced examples:
 #
 # Advanced examples
@@ -206,10 +229,10 @@ def test_advanced_examples():
     bakery = baked.bakery()
     baked_query = bakery(lambda session: session.User)
     baked_query += lambda query: query[User.name == bindparam('username')]
-    # The last item in the query must end with a ``.q``.
+    # The last item in the query must end with a ``.q``. Note that this doesn't print nicely. Using ``.to_query()`` instead fixes this.
     baked_query += lambda query: query.q.order_by(User.id).q
     print_query("baked_query(session).params(username='jack', email='jack@google.com')", [jack], locals())
-#
+
 # main
 # ^^^^
 # Run the example code.

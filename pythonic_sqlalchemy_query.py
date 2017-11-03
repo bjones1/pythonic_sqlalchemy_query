@@ -28,7 +28,7 @@
 # Standard library
 # ----------------
 import inspect as py_inspect
-#
+
 # Third-party imports
 # -------------------
 from sqlalchemy.orm import Query
@@ -43,7 +43,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
 
 # Define the version of this module.
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 # .. _QueryMaker:
 #
@@ -182,32 +182,54 @@ class _QueryWrapper(object):
     def __init__(self, query_maker):
         self._query_maker = query_maker
 
-    # Delegate directly to the wrapped Query.
+    # Delegate directly to the wrapped Query. Per `special method lookup <https://docs.python.org/3/reference/datamodel.html#special-lookup>`_, the `special method names <https://docs.python.org/3/reference/datamodel.html#special-method-names>`_ bypass ``__getattr__`` (and even ``__getattribute__``) lookup. Only override what Query_ overrides.
+    #
+    # The _tq (to_query) property shortens the following functions.
+    @property
+    def _tq(self):
+        return self._query_maker.to_query()
     def __getitem__(self, key):
-        return self._query_maker.to_query()[key]
+        return self._tq.__getitem__(key)
+    def __str__(self):
+        return self._tq.__str__()
+    def __repr__(self):
+        return self._tq.__repr__()
+    def __iter__(self):
+        return self._tq.__iter__()
+    def __setattr__(self, name, value):
+        # Allow __init__ to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_.
+        if name != '_query_maker':
+            return self._tq.__setattr(name, value)
+        else:
+            self.__dict__[name] = value
 
     # Run the method on the underlying Query. If a Query is returned, wrap it in a QueryMaker.
     def __getattr__(self, name):
-        def _wrap_query(*args, **kwargs):
-            # Invoke the requested Query method on the "completed" query returned by ``to_query``.
-            ret = getattr(self._query_maker.to_query(), name)(*args, **kwargs)
-            if isinstance(ret, Query):
-                # If the return value was a Query, make it generative by returning a new QueryMaker instance wrapping the query.
-                query_maker = self._query_maker._clone()
-                jp0_old = query_maker._get_joinpoint_zero_class()
-                # Re-run getattr on the raw query, since we don't want to add columns or entities to the query yet. Otherwise, they'd be added twice (here and again when ``to_query`` is called).
-                query_maker._query = getattr(query_maker._query, name)(*args, **kwargs)
-                # If the query involved a join, then the join point has changed. Update what to select.
-                jp0_new = query_maker._get_joinpoint_zero_class()
-                if jp0_old is not jp0_new:
-                    query_maker._select = jp0_new
-                return query_maker
-            else:
-                # Otherwise, just return the result.
-                return ret
+        attr = getattr(self._tq, name)
+        if not callable(attr):
+            # If this isn't a function, then don't do any wrapping.
+            return attr
+        else:
+            def _wrap_query(*args, **kwargs):
+                # Invoke the requested Query method on the "completed" query returned by ``to_query``.
+                ret = attr(*args, **kwargs)
+                if isinstance(ret, Query):
+                    # If the return value was a Query, make it generative by returning a new QueryMaker instance wrapping the query.
+                    query_maker = self._query_maker._clone()
+                    jp0_old = query_maker._get_joinpoint_zero_class()
+                    # Re-run getattr on the raw query, since we don't want to add columns or entities to the query yet. Otherwise, they'd be added twice (here and again when ``to_query`` is called).
+                    query_maker._query = getattr(query_maker._query, name)(*args, **kwargs)
+                    # If the query involved a join, then the join point has changed. Update what to select.
+                    jp0_new = query_maker._get_joinpoint_zero_class()
+                    if jp0_old is not jp0_new:
+                        query_maker._select = jp0_new
+                    return query_maker
+                else:
+                    # Otherwise, just return the result.
+                    return ret
 
-        return _wrap_query
-#
+            return _wrap_query
+
 # .. _QueryMakerDeclarativeMeta:
 #
 # QueryMakerDeclarativeMeta
@@ -216,7 +238,7 @@ class _QueryWrapper(object):
 class QueryMakerDeclarativeMeta(DeclarativeMeta):
     def __getitem__(cls, key):
         return QueryMaker(cls)[key]
-#
+
 # .. _QueryMakerQuery:
 #
 # QueryMakerQuery
@@ -225,7 +247,7 @@ class QueryMakerDeclarativeMeta(DeclarativeMeta):
 class QueryMakerQuery(Query):
     def query_maker(self, declarative_class=None):
         return QueryMaker(declarative_class, self)
-#
+
 # .. _QueryMakerSession:
 #
 # QueryMakerSession
