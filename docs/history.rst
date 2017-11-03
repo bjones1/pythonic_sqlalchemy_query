@@ -4,6 +4,11 @@ History
 
     -   No changes yet.
 
+-   1.0.2: 3-Nov-2017
+
+    -   Provide a better ``__iter__`` for `QueryMaker`.
+    -   Correct the ``__setattr__`` in `_QueryWrapper`.
+
 -   1.0.1: 3-Nov-2017
 
     -   Allow access to Query variables and special methods from a _QueryWrapper.

@@ -174,6 +174,8 @@ class QueryMaker(object):
         else:
             return query.add_entity(self._select)
 
+# .. _`_QueryWrapper`:
+#
 # _QueryWrapper
 # -------------
 # This class behaves mostly like a Query_. However, if the return value of a method is a Query_, it returns a QueryMaker_ object instead. It's intended for internal use by ``QueryMaker.q``.
