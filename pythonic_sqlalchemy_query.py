@@ -43,7 +43,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
 
 # Define the version of this module.
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 # .. _QueryMaker:
 #
@@ -146,8 +146,7 @@ class QueryMaker(object):
 
     # Support common syntax: ``for x in query_maker:`` converts this to a query and returns results. The session must already have been set.
     def __iter__(self):
-        for _ in self.to_query():
-            yield _
+        return self.to_query().__iter__()
 
     # Provide query-like object, which transforms returned Query values back into this class while leaving other return values unchanged.
     @property
@@ -174,10 +173,10 @@ class QueryMaker(object):
             return query.add_columns(self._select)
         else:
             return query.add_entity(self._select)
-#
+
 # _QueryWrapper
 # -------------
-# This class behaves mostly like a Query_. However, if the return value of a method is a Query_, it returns a QueryMaker_ object instead. It's intended for internal use by QueryMaker.q.
+# This class behaves mostly like a Query_. However, if the return value of a method is a Query_, it returns a QueryMaker_ object instead. It's intended for internal use by ``QueryMaker.q``.
 class _QueryWrapper(object):
     def __init__(self, query_maker):
         self._query_maker = query_maker
@@ -196,10 +195,11 @@ class _QueryWrapper(object):
         return self._tq.__repr__()
     def __iter__(self):
         return self._tq.__iter__()
+
+    # Allow __init__ to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_. Allow direct assignments, as this mimics what an actual Query_ instance would do.
     def __setattr__(self, name, value):
-        # Allow __init__ to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_.
         if name != '_query_maker':
-            return self._tq.__setattr(name, value)
+            return self._query_maker.__setattr(name, value)
         else:
             self.__dict__[name] = value
 
