@@ -4,6 +4,10 @@ History
 
     -   No changes yet.
 
+-   1.0.3: 3-Nov-2017
+
+    -   Correct broken hyperlinks.
+
 -   1.0.2: 3-Nov-2017
 
     -   Provide a better ``__iter__`` for `QueryMaker`.

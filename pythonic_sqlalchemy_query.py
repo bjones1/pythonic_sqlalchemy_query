@@ -43,7 +43,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
 
 # Define the version of this module.
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 # .. _QueryMaker:
 #
