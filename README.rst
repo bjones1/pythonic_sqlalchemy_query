@@ -1,4 +1,4 @@
-The `pythonic_sqlalchemy_query module <pythonic_sqlalchemy_query.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, the two queries produce identical results:
+The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, the two queries produce identical results:
 
 .. code-block:: Python
 
@@ -11,7 +11,7 @@ The `pythonic_sqlalchemy_query module <pythonic_sqlalchemy_query.py.html>`_ prov
         # then joining this to the Address 'jack@google.com`.
         join(Address).filter(Address.email_address == 'jack@google.com')
 
-See the `module documentation <pythonic_sqlalchemy_query.py.html>`_ for more information.
+See the `pythonic_sqlalchemy_query module`_ for more information.
 
 Installation
 ============
@@ -35,7 +35,7 @@ For most cases:
     for result in User['jack'].addresses:
         # Do some processing on result...
 
-The `example <pythonic_sqlalchemy_query-test.py.html>`_ provides full, working code.
+The `example <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query-test.py.html>`_ provides full, working code.
 
 Documentation
 =============
