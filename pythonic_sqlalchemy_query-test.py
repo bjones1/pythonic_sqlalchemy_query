@@ -235,7 +235,7 @@ def test_advanced_examples():
 
 # main
 # ^^^^
-# Run the example code.
+# Run the example code. This can also be tested using `pytest <https://docs.pytest.org>`_: ``pytest pythonic_sqlalchemy_query-test.py``.
 if __name__ == '__main__':
     test_traditional_versus_pythonic()
     test_more_examples()
