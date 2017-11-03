@@ -265,7 +265,7 @@ html_last_updated_fmt = '%b, %d, %Y'
 
 # `html_show_sourcelink <http://sphinx-doc.org/config.html#confval-html_show_sourcelink>`_:
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = True
+html_show_sourcelink = False
 
 # `html_show_sphinx <http://sphinx-doc.org/config.html#confval-html_show_sphinx>`_:
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
