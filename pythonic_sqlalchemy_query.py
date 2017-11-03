@@ -62,8 +62,8 @@ __version__ = '1.0.0'
 #
 # This works by translating class instances in a query/select, indexes into filters, and columns/relationships into joins. The following code shows the Pythonic syntax on the first line, followed by the resulting translation into SQLAlchemy performed by this class on the next line.
 #
-# .. code:: Python
-#   :number-lines:
+# .. code-block:: Python
+#   :linenos:
 #
 #   User                        ['jack']                   .addresses
 #   Query([]).select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)

@@ -1,23 +1,24 @@
-# .. Copyright (C) 2012-2016 Bryan A. Jones.
+# .. License
 #
-#    This file is part of CodeChat.
+#   pythonic_sqlalchemy_query - Provide concise, Pythonic query syntax for SQLAlchemy
+#   Copyright (C) 2017  Bryan A. Jones
 #
-#    CodeChat is free software: you can redistribute it and/or modify it under
-#    the terms of the GNU General Public License as published by the Free
-#    Software Foundation, either version 3 of the License, or (at your option)
-#    any later version.
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
 #
-#    CodeChat is distributed in the hope that it will be useful, but WITHOUT ANY
-#    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-#    details.
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License along
-#    with CodeChat.  If not, see <http://www.gnu.org/licenses/>.
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# ****************************************************************************
-# template/conf.py - Template configuration file for a Sphinx CodeChat project
-# ****************************************************************************
+# **********************************************************
+# conf.py - Configuration file for a Sphinx CodeChat project
+# **********************************************************
 # This file configures Sphinx, which transforms restructured text (reST) into
 # html. See Sphinx `build configuration file docs
 # <http://sphinx-doc.org/config.html>`_ for more information on the settings
@@ -33,7 +34,7 @@
 # * All configuration values have a default; values that are commented out serve
 #   to show the default.
 #
-import sys, os
+import os
 import sphinx_rtd_theme
 import pythonic_sqlalchemy_query
 
@@ -72,7 +73,7 @@ release = 'version ' + version
 
 # `highlight_language <http://sphinx-doc.org/config.html#confval-highlight_language>`_:
 # The default language to highlight source code in.
-highlight_language = 'python'
+highlight_language = 'python3'
 
 # `pygments_style <http://sphinx-doc.org/config.html#confval-pygments_style>`_:
 # The style name to use for Pygments highlighting of source code.
@@ -127,7 +128,11 @@ CodeChat_lexer_for_glob = {
     # CSS files are auto-detected as a CSS + Lasso file by Pygments,
     # causing it to display incorrectly. Define them as CSS only.
     '*.css': 'CSS',
-    }
+    # These files use # for comments, so treat them like Python.
+    '*.txt': 'Python',
+    '*.gitignore': 'Python',
+}
+
 
 # **CodeChat note:** _`CodeChat_excludes` is a list of exclude_patterns_ which
 # applies only to source documents; exclude_patterns_ will exclude the given
@@ -151,19 +156,24 @@ master_doc = 'index'
 # `exclude_patterns <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_:
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
+#
+# **Important:** Do **NOT** add ``CodeChat.css`` to this list; this will
+# instruct Sphinx not to copy it to the ``_static`` directory, where it
+# is needed to properly lay out CodeChat output. Instead, to exclude it
+# from the documents produced by Sphinx, add it to CodeChat_excludes_.
 exclude_patterns = [
-# **CodeChat notes:**
+    # **CodeChat notes:**
+    #
     # By default, Enki will instruct Sphinx to place all Sphinx output in
     # ``_build``; this directory should therefore be excluded from the list of
     # source files.
     '_build',
     # The ``CodeToRestSphinx`` extension creates a file named
     # ``sphinx-enki-info.txt``, which should be ignored by Sphinx.
-    'sphinx-enki-info.txt']
-    # **Important:** Do **NOT** add ``CodeChat.css`` to this list; this will
-    # instruct Sphinx not to copy it to the ``_static`` directory, where it
-    # is needed to properly lay out CodeChat output. Instead, to exclude it
-    # from the documents produced by Sphinx, add it to CodeChat_excludes_.
+    'sphinx-enki-info.txt',
+    # Python files.
+    '*.egg-info',
+]
 
 # `default_role <http://sphinx-doc.org/config.html#confval-default_role>`_: The
 # reST default role (used for this markup: ```text```) to use for all documents.

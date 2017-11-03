@@ -20,6 +20,7 @@ The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query.py>` provides c
    pythonic_sqlalchemy_query-test.py
    setup.py
    setup.cfg
+   .gitignore
 
 
 .. toctree::
@@ -27,6 +28,7 @@ The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query.py>` provides c
    :maxdepth: 2
 
    docs/history
+   docs/requirements.txt
    CodeChat.css
    conf.py
    gnu-gpl-v3.0

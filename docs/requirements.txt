@@ -1,0 +1,8 @@
+# *******************************************************************************
+# requirements.txt - A `pip requirements file`_ needed to build the documentation
+# *******************************************************************************
+# This is needed by the `ReadTheDocs <https://readthedocs.org/>`_ build process.
+CodeChat
+
+# .. _pip requirements file: https://pip.pypa.io/en/latest/user_guide.html#requirements-files
+

@@ -26,7 +26,7 @@
 # `pythonic_sqlalchemy_query at PyPI <https://pypi.python.org/pypi/pythonic_sqlalchemy_query>`_::
 #
 #   python -m pip install -U pip setuptools wheel twine
-#   python setup.py sdist
+#   python setup.py sdist bdist_wheel
 #   python -m twine upload dist/*
 #
 # For `development
