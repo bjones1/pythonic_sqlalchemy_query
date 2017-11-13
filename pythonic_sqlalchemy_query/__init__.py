@@ -8,9 +8,14 @@
 #
 #   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# ************************************************************************************
-# pythonic_sqlalchemy_query.py - Provide concise, Pythonic query syntax for SQLAlchemy
-# ************************************************************************************
+# *******************************************************************************************
+# pythonic_sqlalchemy_query/|docname| - Provide concise, Pythonic query syntax for SQLAlchemy
+# *******************************************************************************************
+#
+# .. toctree::
+#   :glob:
+#
+#   *.py
 #
 # Imports
 # =======
@@ -35,7 +40,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
 
 # Define the version of this module.
-__version__ = '1.0.4'
+__version__ = '1.1.0'
 
 # .. _QueryMaker:
 #

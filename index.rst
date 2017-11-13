@@ -8,7 +8,7 @@
 
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query.py>` provides concise, Pythonic query syntax for SQLAlchemy.
+The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query/__init__.py>` provides concise, Pythonic query syntax for SQLAlchemy.
 
 .. toctree::
    :caption: Quick start
@@ -19,8 +19,8 @@ The `pythonic SQLAlchemy query module <pythonic_sqlalchemy_query.py>` provides c
 .. toctree::
    :caption: Source
 
-   pythonic_sqlalchemy_query.py
-   pythonic_sqlalchemy_query-test.py
+   pythonic_sqlalchemy_query/__init__.py
+   tests/toctree
    setup.py
    setup.cfg
    .gitignore

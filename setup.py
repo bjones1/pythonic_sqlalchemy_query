@@ -8,9 +8,9 @@
 #
 #   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# ********************************************************
-# setup.py - Package and install pythonic_sqlalchemy_query
-# ********************************************************
+# *********************************************************
+# |docname| - Package and install pythonic_sqlalchemy_query
+# *********************************************************
 # .. _to-package:
 #
 # To package
@@ -88,11 +88,11 @@ setup(
     # <https://packaging.python.org/en/latest/single_source_version.html>`_.
     # While I like something simple, such as ``import pythonic_sqlalchemy_query`` then
     # ``version=pythonic_sqlalchemy_query.__version__`` here, this means any dependeninces of
-    # `pythonic_sqlalchemy_query.py` will be requred to run setup,
+    # `pythonic_sqlalchemy_query/__init__.py` will be requred to run setup,
     # a bad thing. So, instead I read the file in ``setup.py`` and parse the
     # version with a regex (see `version parse code
     # <https://packaging.python.org/en/latest/single_source_version.html#single-sourcing-the-project-version>`_).
-    version=find_version("pythonic_sqlalchemy_query.py"),
+    version=find_version("pythonic_sqlalchemy_query/__init__.py"),
 
     description="Provide concise, Pythonic query syntax for SQLAlchemy",
     long_description=long_description,
@@ -124,8 +124,7 @@ setup(
 
     keywords='SQLAlchemy, query helper',
 
-    # See https://docs.python.org/3/distutils/setupscript.html#listing-individual-modules.
-    py_modules=['pythonic_sqlalchemy_query'],
+    packages=['pythonic_sqlalchemy_query'],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
@@ -141,6 +140,6 @@ setup(
     #
     #    ``$ pip install -e .[test]``
     extras_require={
-        'test': ['pytest'],
+        'test': ['pytest', 'Flask-SQLAlchemy'],
     },
 )

@@ -8,9 +8,9 @@
 #
 #   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# **********************************************************
-# conf.py - Configuration file for a Sphinx CodeChat project
-# **********************************************************
+# ************************************************************
+# |docname| - Configuration file for a Sphinx/CodeChat project
+# ************************************************************
 # This file configures Sphinx, which transforms restructured text (reST) into
 # html. See Sphinx `build configuration file docs
 # <http://sphinx-doc.org/config.html>`_ for more information on the settings
@@ -105,6 +105,17 @@ extensions = ['CodeChat.CodeToRestSphinx']
 # `templates_path <http://sphinx-doc.org/config.html#confval-templates_path>`_:
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# `rst_epilog <http://www.sphinx-doc.org/en/stable/config.html#confval-rst_epilog>`_:
+# A string of reStructuredText that will be included at the end of every source
+# file that is read.
+rst_epilog = (
+# Provide a convenient way to refer to a source file's name.
+"""
+
+.. |docname| replace:: :docname:`name`
+"""
+)
 
 # `source_suffix <http://sphinx-doc.org/config.html#confval-source_suffix>`_:
 # The suffix of source filenames.
@@ -253,9 +264,18 @@ html_last_updated_fmt = '%b, %d, %Y'
 # If true, the index is split into individual pages for each letter.
 ##html_split_index = False
 
+# `html_copy_source <http://sphinx-doc.org/config.html#confval-html_copy_source>`_:
+# If true, the reST sources are included in the HTML build as _sources/name.
+html_copy_source = True
+
 # `html_show_sourcelink <http://sphinx-doc.org/config.html#confval-html_show_sourcelink>`_:
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = False
+html_show_sourcelink = True
+
+# `html_sourcelink_suffix <http://sphinx-doc.org/config.html#confval-html_sourcelink_suffix>`_:
+# Suffix to be appended to source links (see html_show_sourcelink), unless they
+# have this suffix already.
+html_sourcelink_suffix = ''
 
 # `html_show_sphinx <http://sphinx-doc.org/config.html#confval-html_show_sphinx>`_:
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.

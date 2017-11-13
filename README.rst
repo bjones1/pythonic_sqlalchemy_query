@@ -8,7 +8,7 @@
 
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, these two queries produce identical results:
+The `pythonic_sqlalchemy_query module <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query/__init__.py.html>`_ provides concise, Pythonic query syntax for SQLAlchemy. For example, these two queries produce identical results:
 
 .. code-block:: Python3
 
@@ -40,10 +40,27 @@ For most cases:
     session = Session()
 
     # After defining some declarative classes, query away:
+    for result in session.User['jack'].addresses:
+        # Do some processing on result...
+
+The `examples <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/tests/test_pythonic_sqlalchemy_query.py.html>`__ provide full, working code.
+
+Use with Flask-SQLAlchemy
+=========================
+For most cases:
+
+.. code-block:: Python3
+
+    from pythonic_sqlalchemy_query.flask import SQLAlchemyPythonicQuery
+
+    app = Flask(__name__)
+    db = SQLAlchemyPythonicQuery(app)
+
+    # After defining some declarative classes, query away:
     for result in User['jack'].addresses:
         # Do some processing on result...
 
-The `example <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/pythonic_sqlalchemy_query-test.py.html>`_ provides full, working code.
+The `examples <http://pythonic-sqlalchemy-query.readthedocs.io/en/latest/tests/test_flask.py.html>`__ provide full, working code.
 
 Documentation
 =============
