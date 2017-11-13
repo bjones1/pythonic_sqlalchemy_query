@@ -93,10 +93,8 @@ pygments_style = 'sphinx'
 # `General configuration <http://sphinx-doc.org/config.html#general-configuration>`_
 # -----------------------------------------------------------------------------------
 # `extensions <http://sphinx-doc.org/config.html#confval-extensions>`_: If your
-# documentation needs a minimal Sphinx version, state it here. **CodeChat
-# note:** CodeChat has been tested with Sphinx 1.3 and above. Older versions may
-# or may not work.
-needs_sphinx = '1.3'
+# documentation needs a minimal Sphinx version, state it here.
+##needs_sphinx = '1.5'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones. **CodeChat
