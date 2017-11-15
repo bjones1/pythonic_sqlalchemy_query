@@ -8,10 +8,10 @@
 #
 #   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# ****************************************
-# |docname| - Fixture shared by unit tests
-# ****************************************
-# This provides fixtures which simplify unit tests.
+# ******************************************************************
+# |docname| - Unit tests for `../pythonic_sqlalchemy_query/flask.py`
+# ******************************************************************
+# This file provide working examples and tests for `../pythonic_sqlalchemy_query/flask.py`.
 #
 # Imports
 # =======
@@ -30,10 +30,11 @@ from sqlalchemy.sql.expression import func
 # Local imports
 # -------------
 from pythonic_sqlalchemy_query.flask import SQLAlchemyPythonicQuery
-from pythonic_sqlalchemy_query import QueryMaker
+from util import print_query
 
-# Tests
+# Setup
 # =====
+# Create a basic Flask-SQLAlchemy application.
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -93,34 +94,16 @@ db.session.commit()
 # .. _Flask Demonstration and unit tests:
 #
 # Demonstration and unit tests
-# ----------------------------
-# Print the results of a query and optionally compare the results with the expected value.
-def _print_query(str_query, locals_=None):
-    print('-'*78)
-    print('Query: ' + str_query)
-    query = eval(str_query, globals(), locals_)
-    if isinstance(query, QueryMaker):
-        query = query.q
-    print('Resulting SQL emitted:\n{}\nResults:'.format(str(query)))
-    return query
-
-def print_query(str_query, expected_result=None, locals_=None):
-    query = _print_query(str_query, locals_)
-    for _ in query:
-        print(_)
-    print('')
-    if expected_result:
-        assert query.all() == expected_result
-    return query
-
+# ============================
+#
 # Traditional versus Pythonic
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ---------------------------
 def test_traditional_versus_pythonic():
     # Create a query to select the Address for 'jack@google.com' from User 'jack'.
     #
     # The Pythonic version of a query:
     pythonic_query = "User['jack'].addresses['jack@google.com']"
-    print_query(pythonic_query, [jack.addresses[0]])
+    print_query(pythonic_query, [jack.addresses[0]], globals())
 
     # The traditional approach:
     traditional_query = (
@@ -131,39 +114,40 @@ def test_traditional_versus_pythonic():
         # then joining this to the Address 'jack@google.com`.
         "join(Address).filter(Address.email_address == 'jack@google.com')"
     )
-    print_query(traditional_query, [jack.addresses[0]])
+    print_query(traditional_query, [jack.addresses[0]], globals())
 
 # Examples
-# ^^^^^^^^
+# --------
 def test_more_examples():
     # Ask for the full User object for jack.
-    print_query("User['jack']", [jack])
+    print_query("User['jack']", [jack], globals())
     # Ask only for Jack's full name.
-    print_query("User['jack'].fullname", [(jack.fullname, )])
+    print_query("User['jack'].fullname", [(jack.fullname, )], globals())
     # Get all of Jack's addresses.
-    print_query("User['jack'].addresses", jack.addresses)
+    print_query("User['jack'].addresses", jack.addresses, globals())
     # Get just the email-address of all of Jack's addresses.
-    print_query("User['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses])
+    print_query("User['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses], globals())
     # Get just the email-address j25@yahoo.com of Jack's addresses.
-    print_query("User['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]])
+    print_query("User['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the full Address object for j25@yahoo.com.
-    print_query("Address['j25@yahoo.com']", [jack.addresses[1]])
+    print_query("Address['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the User associated with this address.
-    print_query("Address['j25@yahoo.com'].user", [jack])
+    print_query("Address['j25@yahoo.com'].user", [jack], globals())
     # Use a filter criterion to select a User with a full name of Jack Bean.
-    print_query("User[User.fullname == 'Jack Bean']", [jack])
+    print_query("User[User.fullname == 'Jack Bean']", [jack], globals())
     # Use two filter criteria to find the user named jack with a full name of Jack Bean.
-    print_query("User['jack'][User.fullname == 'Jack Bean']", [jack])
+    print_query("User['jack'][User.fullname == 'Jack Bean']", [jack], globals())
     # Look for the user with id 1.
-    print_query("User[1]", [jack])
+    print_query("User[1]", [jack], globals())
     # Use an SQL expression in the query.
-    print_query("User[func.lower(User.fullname) == 'jack bean']", [jack])
+    print_query("User[func.lower(User.fullname) == 'jack bean']", [jack], globals())
 
-    # Query using the session. A bit longer, but it produces the same results.
-    print_query("db.session.User['jack'].addresses['jack@google.com']")
+    # Query using the session. A bit longer, but it produces the same results. For comparison:
+    print_query(           "User['jack'].addresses['jack@google.com']", [jack.addresses[0]], globals())
+    print_query("db.session.User['jack'].addresses['jack@google.com']", [jack.addresses[0]], globals())
 
 # main
-# ^^^^
+# ====
 # Run the example code. This can also be tested using `pytest <https://docs.pytest.org>`_: ``pytest pythonic_sqlalchemy_query-test.py``.
 if __name__ == '__main__':
     test_traditional_versus_pythonic()

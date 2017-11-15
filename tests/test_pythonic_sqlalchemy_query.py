@@ -37,9 +37,10 @@ from sqlalchemy.sql.expression import func
 from pythonic_sqlalchemy_query import (
     QueryMaker, QueryMakerDeclarativeMeta, QueryMakerQuery, QueryMakerSession
 )
+from util import print_query, _print_query
 
-# Demo code
-# =========
+# Setup
+# =====
 # .. _Database setup:
 #
 # Database setup
@@ -107,34 +108,16 @@ session.commit()
 # .. _Demonstration and unit tests:
 #
 # Demonstration and unit tests
-# ----------------------------
-# Print the results of a query and optionally compare the results with the expected value.
-def _print_query(str_query, locals_=None):
-    print('-'*78)
-    print('Query: ' + str_query)
-    query = eval(str_query, globals(), locals_)
-    if isinstance(query, QueryMaker):
-        query = query.q
-    print('Resulting SQL emitted:\n{}\nResults:'.format(str(query)))
-    return query
-
-def print_query(str_query, expected_result=None, locals_=None):
-    query = _print_query(str_query, locals_)
-    for _ in query:
-        print(_)
-    print('')
-    if expected_result:
-        assert query.all() == expected_result
-    return query
-
+# ============================
+#
 # Traditional versus Pythonic
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ---------------------------
 def test_traditional_versus_pythonic():
     # Create a query to select the Address for 'jack@google.com' from User 'jack'.
     #
     # The Pythonic version of a query:
     pythonic_query = "session.User['jack'].addresses['jack@google.com']"
-    print_query(pythonic_query, [jack.addresses[0]])
+    print_query(pythonic_query, [jack.addresses[0]], globals())
 
     # The traditional approach:
     traditional_query = (
@@ -145,48 +128,48 @@ def test_traditional_versus_pythonic():
         # then joining this to the Address 'jack@google.com`.
         "join(Address).filter(Address.email_address == 'jack@google.com')"
     )
-    print_query(traditional_query, [jack.addresses[0]])
+    print_query(traditional_query, [jack.addresses[0]], globals())
 
 # More examples
-# ^^^^^^^^^^^^^
+# -------------
 def test_more_examples():
     # Ask for the full User object for jack.
-    print_query("session.User['jack']", [jack])
+    print_query("session.User['jack']", [jack], globals())
     # Ask only for Jack's full name.
-    print_query("session.User['jack'].fullname", [(jack.fullname, )])
+    print_query("session.User['jack'].fullname", [(jack.fullname, )], globals())
     # Get all of Jack's addresses.
-    print_query("session.User['jack'].addresses", jack.addresses)
+    print_query("session.User['jack'].addresses", jack.addresses, globals())
     # Get just the email-address of all of Jack's addresses.
-    print_query("session.User['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses])
+    print_query("session.User['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses], globals())
     # Get just the email-address j25@yahoo.com of Jack's addresses.
-    print_query("session.User['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]])
+    print_query("session.User['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the full Address object for j25@yahoo.com.
-    print_query("session.Address['j25@yahoo.com']", [jack.addresses[1]])
+    print_query("session.Address['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the User associated with this address.
-    print_query("session.Address['j25@yahoo.com'].user", [jack])
+    print_query("session.Address['j25@yahoo.com'].user", [jack], globals())
     # Use a filter criterion to select a User with a full name of Jack Bean.
-    print_query("session.User[User.fullname == 'Jack Bean']", [jack])
+    print_query("session.User[User.fullname == 'Jack Bean']", [jack], globals())
     # Use two filter criteria to find the user named jack with a full name of Jack Bean.
-    print_query("session.User['jack'][User.fullname == 'Jack Bean']", [jack])
+    print_query("session.User['jack'][User.fullname == 'Jack Bean']", [jack], globals())
     # Look for the user with id 1.
-    print_query("session.User[1]", [jack])
+    print_query("session.User[1]", [jack], globals())
     # Use an SQL expression in the query.
-    print_query("session.User[func.lower(User.fullname) == 'jack bean']", [jack])
+    print_query("session.User[func.lower(User.fullname) == 'jack bean']", [jack], globals())
 
     # Transform to a query for indexing.
-    assert _print_query("session.Address.q[1]") == jack.addresses[1]
+    assert _print_query("session.Address.q[1]", globals()) == jack.addresses[1]
     # Call the ``count`` method on the underlying Query object.
-    assert _print_query("session.Address.q.count()") == 2
+    assert _print_query("session.Address.q.count()", globals()) == 2
     # Call the ``order_by`` method on the underlying Query object.
-    print_query("session.Address.q.order_by(Address.email_address)", list(reversed([jack.addresses][0])))
+    print_query("session.Address.q.order_by(Address.email_address)", list(reversed([jack.addresses][0])), globals())
     # Use the underlying query object for complex joins.
     adalias1 = aliased(Address)
-    print_query("session.User.q.join(adalias1, User.addresses)['j25@yahoo.com']", [jack.addresses[1]], locals())
+    print_query("session.User.q.join(adalias1, User.addresses)['j25@yahoo.com']", [jack.addresses[1]], globals(), locals())
 
     # Queries are generative: ``qm`` can be re-used.
     qm = session.User['jack']
-    print_query("qm.addresses", jack.addresses, locals())
-    print_query("qm", [jack], locals())
+    print_query("qm.addresses", jack.addresses, globals(), locals())
+    print_query("qm", [jack], globals(), locals())
 
     # Properties and variables can be accessed as usual.
     cds_str = "session.User['jack'].fullname.q.column_descriptions"
@@ -200,23 +183,23 @@ def test_more_examples():
 # .. _Advanced examples:
 #
 # Advanced examples
-# ^^^^^^^^^^^^^^^^^
+# -----------------
 def test_advanced_examples():
     # Specify exactly what to return by accessing the underlying query.
-    print_query("session.User['jack'].addresses._query.add_columns(User.id, Address.id)", [(1, 1), (1, 2)] )
+    print_query("session.User['jack'].addresses._query.add_columns(User.id, Address.id)", [(1, 1), (1, 2)], globals() )
 
     # If `QueryMakerSession` isn't used, the session can be provided at the end of the query. However, this means the ``.q`` property won't be useful (since it has no assigned session).
-    print_query("User['jack'].to_query(session)", [jack])
+    print_query("User['jack'].to_query(session)", [jack], globals())
 
     # If the `QueryMakerDeclarativeMeta` metaclass wasn't used, this performs the equivalent of ``User['jack']`` manually.
-    print_query("QueryMaker(User)['jack'].to_query(session)", [jack])
+    print_query("QueryMaker(User)['jack'].to_query(session)", [jack], globals())
 
     # Add to an existing query: first, find the User named jack.
     q = session.query().select_from(User).filter(User.name == 'jack')
     # Then ask for the Address for jack@google.com.
-    print_query("q.query_maker().addresses['jack@google.com']", [jack.addresses[0]], locals())
+    print_query("q.query_maker().addresses['jack@google.com']", [jack.addresses[0]], globals(), locals())
     # Do the same manually (without relying on the `QueryMakerQuery` ``query_maker`` method).
-    print_query("QueryMaker(query=q).addresses['jack@google.com']", [jack.addresses[0]], locals())
+    print_query("QueryMaker(query=q).addresses['jack@google.com']", [jack.addresses[0]], globals(), locals())
 
     # `Baked queries <http://docs.sqlalchemy.org/en/latest/orm/extensions/baked.html>`_ are supported.
     bakery = baked.bakery()
@@ -224,10 +207,10 @@ def test_advanced_examples():
     baked_query += lambda query: query[User.name == bindparam('username')]
     # The last item in the query must end with a ``.q``. Note that this doesn't print nicely. Using ``.to_query()`` instead fixes this.
     baked_query += lambda query: query.q.order_by(User.id).q
-    print_query("baked_query(session).params(username='jack', email='jack@google.com')", [jack], locals())
+    print_query("baked_query(session).params(username='jack', email='jack@google.com')", [jack], globals(), locals())
 
 # main
-# ^^^^
+# ====
 # Run the example code. This can also be tested using `pytest <https://docs.pytest.org>`_: ``pytest pythonic_sqlalchemy_query-test.py``.
 if __name__ == '__main__':
     test_traditional_versus_pythonic()
