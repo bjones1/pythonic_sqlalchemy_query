@@ -47,6 +47,11 @@ from sqlalchemy.inspection import inspect
 #
 #   User                        ['jack']                   .addresses
 #   Query([]).select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
+#
+# Note that the `delete <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.delete>`_ and `update <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.update>`_ methods cannot be involed on the query produced by this class. Rationale:
+#
+# - Per the docs on delete_ and update_, these come with a long list of caveats. Making dangerous functions easy to invoke is poor design.
+# - For implementation, QueryMaker_ cannot invoke `select_from <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.select_from>`_. Doing so raises ``sqlalchemy.exc.InvalidRequestError: Can't call Query.update() or Query.delete() when join(), outerjoin(), select_from(), or from_self() has been called``. So, select_from_ must be deferred -- but to when? ``User['jack'].addresses`` requires a select_from_, while ``User['jack']`` needs just ``add_entity``. We can't know which to invoke until the entire expression is complete.
 class QueryMaker(object):
     def __init__(self,
       # An optional `Declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ to query.

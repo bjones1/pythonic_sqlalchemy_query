@@ -15,6 +15,11 @@ History
 
     -   No changes yet.
 
+-   1.1.1: 15-Nov-2017
+
+    -   Refactor test code.
+    -   Refactor Flask's scoped session into the core.
+
 -   1.1.0: 13-Nov-2017
 
     -   Restructured to place code in a package.
