@@ -111,7 +111,7 @@ def test_traditional_versus_pythonic():
         "Address.query."
         # by querying a User named 'jack'...
         "select_from(User).filter(User.name == 'jack')."
-        # then joining this to the Address 'jack@google.com`.
+        # then joining this to the Address 'jack@google.com'.
         "join(Address).filter(Address.email_address == 'jack@google.com')"
     )
     print_query(traditional_query, [jack.addresses[0]], globals())
@@ -148,7 +148,7 @@ def test_more_examples():
 
 # main
 # ====
-# Run the example code. This can also be tested using `pytest <https://docs.pytest.org>`_: ``pytest pythonic_sqlalchemy_query-test.py``.
+# Run the example code. This can also be `tested using pytest <pytest syntax>`.
 if __name__ == '__main__':
     test_traditional_versus_pythonic()
     test_more_examples()

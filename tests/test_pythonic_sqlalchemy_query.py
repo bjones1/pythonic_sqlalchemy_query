@@ -11,7 +11,9 @@
 # ****************************************************************************************
 # |docname| - Unit tests and demonstrations for `../pythonic_sqlalchemy_query/__init__.py`
 # ****************************************************************************************
-# To run: ``pytest tests``.
+# .. _pytest syntax:
+#
+# To run: execute ``pytest tests`` from the project's root directory.
 #
 # Imports
 # =======
@@ -211,7 +213,7 @@ def test_advanced_examples():
 
 # main
 # ====
-# Run the example code. This can also be tested using `pytest <https://docs.pytest.org>`_: ``pytest pythonic_sqlalchemy_query-test.py``.
+# Run the example code. This can also be `tested using pytest <pytest syntax>`.
 if __name__ == '__main__':
     test_traditional_versus_pythonic()
     test_more_examples()

@@ -48,7 +48,17 @@ from sqlalchemy.inspection import inspect
 #   User                        ['jack']                   .addresses
 #   Query([]).select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
 #
-# Note that the `delete <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.delete>`_ and `update <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.update>`_ methods cannot be involed on the query produced by this class. Rationale:
+# Limitations
+# -----------
+# Note that the `delete <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.delete>`_ and `update <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.update>`_ methods cannot be involed on the query produced by this class. Safer (but lower-performance) is:
+#
+# .. code-block:: python3
+#   :linenos:
+#
+#   for _ in session.User['jack']:
+#       session.delete(_)
+#
+# Rationale:
 #
 # - Per the docs on delete_ and update_, these come with a long list of caveats. Making dangerous functions easy to invoke is poor design.
 # - For implementation, QueryMaker_ cannot invoke `select_from <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.select_from>`_. Doing so raises ``sqlalchemy.exc.InvalidRequestError: Can't call Query.update() or Query.delete() when join(), outerjoin(), select_from(), or from_self() has been called``. So, select_from_ must be deferred -- but to when? ``User['jack'].addresses`` requires a select_from_, while ``User['jack']`` needs just ``add_entity``. We can't know which to invoke until the entire expression is complete.
@@ -133,18 +143,10 @@ class QueryMaker(object):
     def __iter__(self):
         return self.to_query().__iter__()
 
-    # Provide query-like object, which transforms returned Query values back into this class while leaving other return values unchanged.
+    # This property return a `_QueryWrapper`_, a query-like object which transforms returned Query_ values back into this class while leaving other return values unchanged.
     @property
     def q(self):
         return _QueryWrapper(self)
-
-    # Get the right-most join point in the current query.
-    def _get_joinpoint_zero_class(self):
-        jp0 = self._query._joinpoint_zero()
-        # If the join point was returned as a Mapper, get the underlying class.
-        if isinstance(jp0, Mapper):
-            jp0 = jp0.class_
-        return jp0
 
     # Transform this object into a Query_.
     def to_query(self,
@@ -159,6 +161,14 @@ class QueryMaker(object):
         else:
             return query.add_entity(self._select)
 
+    # Get the right-most join point in the current query.
+    def _get_joinpoint_zero_class(self):
+        jp0 = self._query._joinpoint_zero()
+        # If the join point was returned as a Mapper, get the underlying class.
+        if isinstance(jp0, Mapper):
+            jp0 = jp0.class_
+        return jp0
+
 # .. _`_QueryWrapper`:
 #
 # _QueryWrapper
@@ -168,9 +178,9 @@ class _QueryWrapper(object):
     def __init__(self, query_maker):
         self._query_maker = query_maker
 
-    # Delegate directly to the wrapped Query. Per `special method lookup <https://docs.python.org/3/reference/datamodel.html#special-lookup>`_, the `special method names <https://docs.python.org/3/reference/datamodel.html#special-method-names>`_ bypass ``__getattr__`` (and even ``__getattribute__``) lookup. Only override what Query_ overrides.
+    # Delegate directly to the wrapped Query_. Per `special method lookup <https://docs.python.org/3/reference/datamodel.html#special-lookup>`_, the `special method names <https://docs.python.org/3/reference/datamodel.html#special-method-names>`_ bypass ``__getattr__`` (and even ``__getattribute__``) lookup. Only override what Query_ overrides.
     #
-    # The _tq (to_query) property shortens the following functions.
+    # The ``_tq`` (to_query) property shortens the following functions.
     @property
     def _tq(self):
         return self._query_maker.to_query()
@@ -183,14 +193,14 @@ class _QueryWrapper(object):
     def __iter__(self):
         return self._tq.__iter__()
 
-    # Allow __init__ to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_. Allow direct assignments, as this mimics what an actual Query_ instance would do.
+    # Allow ``__init__`` to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_. Allow direct assignments, as this mimics what an actual Query_ instance would do.
     def __setattr__(self, name, value):
         if name != '_query_maker':
             return self._query_maker.__setattr(name, value)
         else:
             self.__dict__[name] = value
 
-    # Run the method on the underlying Query. If a Query is returned, wrap it in a QueryMaker.
+    # Run the method on the underlying Query_. If a Query_ is returned, wrap it in a QueryMaker_.
     def __getattr__(self, name):
         attr = getattr(self._tq, name)
         if not callable(attr):
@@ -198,18 +208,16 @@ class _QueryWrapper(object):
             return attr
         else:
             def _wrap_query(*args, **kwargs):
-                # Invoke the requested Query method on the "completed" query returned by ``to_query``.
+                # Invoke the requested Query_ method on the "completed" query returned by ``to_query``.
                 ret = attr(*args, **kwargs)
                 if isinstance(ret, Query):
-                    # If the return value was a Query, make it generative by returning a new QueryMaker instance wrapping the query.
+                    # If the return value was a Query_, make it generative by returning a new QueryMaker_ instance wrapping the query.
                     query_maker = self._query_maker._clone()
                     jp0_old = query_maker._get_joinpoint_zero_class()
                     # Re-run getattr on the raw query, since we don't want to add columns or entities to the query yet. Otherwise, they'd be added twice (here and again when ``to_query`` is called).
                     query_maker._query = getattr(query_maker._query, name)(*args, **kwargs)
                     # If the query involved a join, then the join point has changed. Update what to select.
-                    jp0_new = query_maker._get_joinpoint_zero_class()
-                    if jp0_old is not jp0_new:
-                        query_maker._select = jp0_new
+                    query_maker._select = query_maker._get_joinpoint_zero_class()
                     return query_maker
                 else:
                     # Otherwise, just return the result.
@@ -230,7 +238,7 @@ class QueryMakerDeclarativeMeta(DeclarativeMeta):
 #
 # QueryMakerQuery
 # ---------------
-# Provide support for changing a Query instance into a QueryMaker instance. See the `advanced examples` for an example of its use.
+# Provide support for changing a Query_ instance into a QueryMaker_ instance. See the `advanced examples` for an example of its use.
 class QueryMakerQuery(Query):
     def query_maker(self, declarative_class=None):
         return QueryMaker(declarative_class, self)
@@ -239,7 +247,7 @@ class QueryMakerQuery(Query):
 #
 # QueryMakerSession
 # -----------------
-# Create a Session which recognizes declarative classes as an attribute. This enables ``session.User['jack']``. See the `database setup` for an example of its use.
+# Create a Session_ which recognizes declarative classes as an attribute. This enables ``session.User['jack']``. See the `database setup` for an example of its use.
 class QueryMakerSession(Session):
     def __getattr__(self, name):
         cls = _parent_declarative_class(name)
@@ -263,7 +271,7 @@ class QueryMakerScopedSession(scoped_session):
 
 # Support routines
 # ----------------
-# Given the name of a declarative class in the caller's parent's stack frame, return it. If it can't be found, return None.
+# Given the name of a declarative class in the caller's parent's stack frame, return it. If it can't be found, return ``None``.
 def _parent_declarative_class(name):
     # TODO: Shady. I don't see any other way to accomplish this, though.
     #
