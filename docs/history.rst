@@ -13,7 +13,7 @@ History
 *******
 -   Development version:
 
-    -   No changes yet.
+    -   Added additional tests.
 
 -   1.1.1: 15-Nov-2017
 

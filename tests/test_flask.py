@@ -141,6 +141,12 @@ def test_more_examples():
     print_query("User[1]", [jack], globals())
     # Use an SQL expression in the query.
     print_query("User[func.lower(User.fullname) == 'jack bean']", [jack], globals())
+    # Ask for everything in User. (This is built in to Flask-SQLAlchemy and isn't a part of this package. However, this seems like the cleanest syntax to me.)
+    print_query("User.query", [jack], globals())
+    # Another syntax for the everything in User. This does use functionality from this package.
+    print_query("db.session.User", [jack], globals())
+    # Ask for the name of all Users. Note that ``User.name`` can't be used in this case.
+    print_query("db.session.User.name", [(jack.name, )], globals())
 
     # Query using the session. A bit longer, but it produces the same results. For comparison:
     print_query(           "User['jack'].addresses['jack@google.com']", [jack.addresses[0]], globals())

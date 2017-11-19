@@ -24,6 +24,7 @@ from sqlalchemy.orm.util import class_mapper
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.inspection import inspect
 
+
 # .. _QueryMaker:
 #
 # QueryMaker
@@ -64,10 +65,10 @@ from sqlalchemy.inspection import inspect
 # - For implementation, QueryMaker_ cannot invoke `select_from <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.select_from>`_. Doing so raises ``sqlalchemy.exc.InvalidRequestError: Can't call Query.update() or Query.delete() when join(), outerjoin(), select_from(), or from_self() has been called``. So, select_from_ must be deferred -- but to when? ``User['jack'].addresses`` requires a select_from_, while ``User['jack']`` needs just ``add_entity``. We can't know which to invoke until the entire expression is complete.
 class QueryMaker(object):
     def __init__(self,
-      # An optional `Declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ to query.
-      declarative_class=None,
-      # Optionally, begin with an existing query_.
-      query=None):
+        # An optional `Declarative class <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#declare-a-mapping>`_ to query.
+        declarative_class=None,
+        # Optionally, begin with an existing query_.
+        query=None):
 
         if declarative_class:
             assert _is_mapped_class(declarative_class)
@@ -90,7 +91,7 @@ class QueryMaker(object):
         else:
             # The declarative class must be provided if the query wasn't.
             assert declarative_class
-            # No a query was not provied, create an empty `query <http://docs.sqlalchemy.org/en/latest/orm/query.html>`_; ``to_query`` will fill in the missing information.
+            # Since a query was not provied, create an empty `query <http://docs.sqlalchemy.org/en/latest/orm/query.html>`_; ``to_query`` will fill in the missing information. TODO: allow the user to specify the class of the query. Even better, get it from the session (but how?).
             self._query = Query([]).select_from(declarative_class)
             # Keep track of the last selectable construct, to generate the select in ``to_query``.
             self._select = declarative_class
@@ -169,6 +170,7 @@ class QueryMaker(object):
             jp0 = jp0.class_
         return jp0
 
+
 # .. _`_QueryWrapper`:
 #
 # _QueryWrapper
@@ -225,6 +227,7 @@ class _QueryWrapper(object):
 
             return _wrap_query
 
+
 # .. _QueryMakerDeclarativeMeta:
 #
 # QueryMakerDeclarativeMeta
@@ -234,6 +237,7 @@ class QueryMakerDeclarativeMeta(DeclarativeMeta):
     def __getitem__(cls, key):
         return QueryMaker(cls)[key]
 
+
 # .. _QueryMakerQuery:
 #
 # QueryMakerQuery
@@ -242,6 +246,7 @@ class QueryMakerDeclarativeMeta(DeclarativeMeta):
 class QueryMakerQuery(Query):
     def query_maker(self, declarative_class=None):
         return QueryMaker(declarative_class, self)
+
 
 # .. _QueryMakerSession:
 #
@@ -256,6 +261,7 @@ class QueryMakerSession(Session):
         else:
             return super().__getattr__(name)
 
+
 # .. _QueryMakerScopedSession:
 #
 # QueryMakerScopedSession
@@ -268,6 +274,7 @@ class QueryMakerScopedSession(scoped_session):
             return QueryMaker(cls, self.registry().query())
         else:
             return super().__getattr__(name)
+
 
 # Support routines
 # ----------------
@@ -283,6 +290,7 @@ def _parent_declarative_class(name):
         return g[name]
     else:
         return None
+
 
 # Copied from https://stackoverflow.com/a/7662943.
 def _is_mapped_class(cls):

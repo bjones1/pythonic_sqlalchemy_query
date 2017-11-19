@@ -24,15 +24,15 @@
 
 # Third-party imports
 # -------------------
-from sqlalchemy import orm
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from flask import _app_ctx_stack
-from flask_sqlalchemy import SQLAlchemy, SignallingSession
+from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.model import Model, DefaultMeta
 
 # Local imports
 # -------------
-from . import QueryMakerSession, QueryMakerScopedSession, QueryMaker
+from . import QueryMakerScopedSession, QueryMaker
+
 
 # Flask-SQLAlchemy customization
 # ==============================
@@ -50,6 +50,7 @@ class QueryMakerFlaskDeclarativeMeta(DefaultMeta):
         session = cls.query.session
         # Build a new query from here, since ``cls.query`` has already invoked ``add_entity`` on ``cls``.
         return QueryMaker(cls, session.query())[key]
+
 
 # Then, use this in the `Flask-SQLAlchemy session <http://flask-sqlalchemy.pocoo.org/2.3/api/#sessions>`_.
 class SQLAlchemyPythonicQuery(SQLAlchemy):

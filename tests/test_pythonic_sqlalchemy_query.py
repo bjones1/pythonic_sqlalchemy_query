@@ -157,6 +157,10 @@ def test_more_examples():
     print_query("session.User[1]", [jack], globals())
     # Use an SQL expression in the query.
     print_query("session.User[func.lower(User.fullname) == 'jack bean']", [jack], globals())
+    # Ask for all Users.
+    print_query("session.User", [jack], globals())
+    # Ask for the name of all Users.
+    print_query("session.User.name", [(jack.name, )], globals())
 
     # Transform to a query for indexing.
     assert _print_query("session.Address.q[1]", globals()) == jack.addresses[1]
