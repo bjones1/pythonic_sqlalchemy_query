@@ -46,8 +46,8 @@ from sqlalchemy.inspection import inspect
 # .. code-block:: Python
 #   :linenos:
 #
-#   User                        ['jack']                   .addresses
-#   Query([]).select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
+#   session.User                      ['jack']                   .addresses
+#   session.query().select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
 #
 # Limitations
 # -----------
@@ -243,6 +243,8 @@ class QueryMakerDeclarativeMeta(DeclarativeMeta):
 # QueryMakerQuery
 # ---------------
 # Provide support for changing a Query_ instance into a QueryMaker_ instance. See the `advanced examples` for an example of its use.
+#
+# TODO: This doesn't allow a user-specified Query_ class. Perhaps provide a factory instead?
 class QueryMakerQuery(Query):
     def query_maker(self, declarative_class=None):
         return QueryMaker(declarative_class, self)
