@@ -13,6 +13,11 @@ History
 *******
 -   Development version:
 
+    -   No changes yet.
+
+-   1.2.0: 11-Jan-2018
+
+    -   Changed syntax: ``session(User)`` instead of ``session.User`` to avoid "magic" method use.
     -   Added additional tests.
 
 -   1.1.1: 15-Nov-2017
