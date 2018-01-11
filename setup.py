@@ -16,7 +16,10 @@
 # To package
 # ==========
 # Create a source distribution, a built distribution, then upload both to
-# `pythonic_sqlalchemy_query at PyPI <https://pypi.python.org/pypi/pythonic_sqlalchemy_query>`_::
+# `pythonic_sqlalchemy_query at PyPI <https://pypi.python.org/pypi/pythonic_sqlalchemy_query>`_:
+#
+# .. code-block:: none
+#   :linenos:
 #
 #   python -m pip install -U pip setuptools wheel twine
 #   python setup.py sdist bdist_wheel
@@ -25,7 +28,7 @@
 # For `development
 # <https://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
 #
-#  ``pip install -e .``
+#   ``pip install -e .``
 #
 # Packaging script
 # ================
