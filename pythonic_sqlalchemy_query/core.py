@@ -9,8 +9,8 @@
 #
 # Standard library
 # ----------------
-import inspect as py_inspect
-
+# None.
+#
 # Third-party imports
 # -------------------
 from sqlalchemy.orm import Query, scoped_session
@@ -29,14 +29,14 @@ from sqlalchemy.inspection import inspect
 #
 # QueryMaker
 # ==========
-# This class provides a concise, Pythonic syntax for simple queries; for example, ``session.User['jack'].addresses`` produces a Query_ for the Address of a User named jack.
+# This class provides a concise, Pythonic syntax for simple queries; as shown in the `Demonstration and unit tests`, ``session(User)['jack'].addresses`` produces a Query_ for the ``Address`` of a ``User`` named ``jack``.
 #
 # This class provides the following methods:
 #
-# - Constructor: ``session.User`` (with help from QueryMakerSession_) creates a query on a User table.
-# - Indexing: ``session.User['jack']`` performs filtering.
-# - Attributes: ``session.User['jack'].addresses`` joins to the Addresses table.
-# - Iteration: ``for x in session.User['jack'].addresses`` iterates over the results of the query.
+# - Constructor: ``session(User)`` (with help from QueryMakerSession_) creates a query on a User table.
+# - Indexing: ``session(User)['jack']`` performs filtering.
+# - Attributes: ``session(User)['jack'].addresses`` joins to the Addresses table.
+# - Iteration: ``for x in session(User)['jack'].addresses`` iterates over the results of the query.
 # - Query access: ``User['jack'].addresses.q`` returns a Query-like object. Any Query_ method can be invoked on it.
 #
 # See the `demonstration and unit tests` for examples and some less-used methods.
@@ -46,17 +46,17 @@ from sqlalchemy.inspection import inspect
 # .. code-block:: Python
 #   :linenos:
 #
-#   session.User                      ['jack']                   .addresses
+#   session(User)                     ['jack']                   .addresses
 #   session.query().select_from(User).filter(User.name == 'jack').join(Address).add_entity(Address)
 #
 # Limitations
 # -----------
-# Note that the `delete <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.delete>`_ and `update <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.update>`_ methods cannot be involed on the query produced by this class. Safer (but lower-performance) is:
+# Note that the `delete <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.delete>`_ and `update <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.update>`_ methods cannot be invoked on the query produced by this class. Safer (but lower-performance) is:
 #
 # .. code-block:: python3
 #   :linenos:
 #
-#   for _ in session.User['jack']:
+#   for _ in session(User)['jack']:
 #       session.delete(_)
 #
 # Rationale:
@@ -91,7 +91,7 @@ class QueryMaker(object):
         else:
             # The declarative class must be provided if the query wasn't.
             assert declarative_class
-            # Since a query was not provied, create an empty `query <http://docs.sqlalchemy.org/en/latest/orm/query.html>`_; ``to_query`` will fill in the missing information. TODO: allow the user to specify the class of the query. Even better, get it from the session (but how?).
+            # Since a query was not provied, create an empty `query <http://docs.sqlalchemy.org/en/latest/orm/query.html>`_; ``to_query`` will fill in the missing information.
             self._query = Query([]).select_from(declarative_class)
             # Keep track of the last selectable construct, to generate the select in ``to_query``.
             self._select = declarative_class
@@ -122,11 +122,11 @@ class QueryMaker(object):
             # This isn't a Column_ or a relationship_.
             assert False
 
-    # Indexing the object performs the implied filter. For example, ``User['jack']`` implies ``query.filter(User.name == 'jack')``.
+    # Indexing the object performs the implied filter. For example, ``session(User)['jack']`` implies ``session.query(User).filter(User.name == 'jack')``.
     @_generative()
     def __getitem__(self,
-      # Most often, this is a key which will be filtered by the ``default_query`` method of the currently-active `Declarative class`_. In the example above, the ``User`` class must define a ``default_query`` to operate on strings. However, it may also be a filter criterion, such as ``User[User.name == 'jack']``.
-      key):
+        # Most often, this is a key which will be filtered by the ``default_query`` method of the currently-active `Declarative class`_. In the example above, the ``User`` class must define a ``default_query`` to operate on strings. However, it may also be a filter criterion, such as ``session(User)[User.name == 'jack']``.
+        key):
 
         # See if this is a filter criterion; if not, rely in the ``default_query`` defined by the `Declarative class`_ or fall back to the first primary key.
         criteria = None
@@ -144,15 +144,15 @@ class QueryMaker(object):
     def __iter__(self):
         return self.to_query().__iter__()
 
-    # This property return a `_QueryWrapper`_, a query-like object which transforms returned Query_ values back into this class while leaving other return values unchanged.
+    # This property returns a `_QueryWrapper`_, a query-like object which transforms returned Query_ values back into this class while leaving other return values unchanged.
     @property
     def q(self):
         return _QueryWrapper(self)
 
     # Transform this object into a Query_.
     def to_query(self,
-      # Optionally, the `Session <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=session#sqlalchemy.orm.session.Session>`_ to run this query in.
-      session=None):
+        # Optionally, the `Session <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=session#sqlalchemy.orm.session.Session>`_ to run this query in.
+        session=None):
 
         # If a session was specified, use it to produce the query_; otherwise, use the existing query_.
         query = self._query.with_session(session) if session else self._query
@@ -165,7 +165,7 @@ class QueryMaker(object):
     # Get the right-most join point in the current query.
     def _get_joinpoint_zero_class(self):
         jp0 = self._query._joinpoint_zero()
-        # If the join point was returned as a Mapper, get the underlying class.
+        # If the join point was returned as a `Mapper <http://docs.sqlalchemy.org/en/latest/orm/mapping_api.html#sqlalchemy.orm.mapper.Mapper>`_, get the underlying class.
         if isinstance(jp0, Mapper):
             jp0 = jp0.class_
         return jp0
@@ -198,7 +198,7 @@ class _QueryWrapper(object):
     # Allow ``__init__`` to create the ``_query_maker`` variable. Everything else goes to the wrapped Query_. Allow direct assignments, as this mimics what an actual Query_ instance would do.
     def __setattr__(self, name, value):
         if name != '_query_maker':
-            return self._query_maker.__setattr(name, value)
+            return self._query_maker.__setattr__(name, value)
         else:
             self.__dict__[name] = value
 
@@ -215,7 +215,6 @@ class _QueryWrapper(object):
                 if isinstance(ret, Query):
                     # If the return value was a Query_, make it generative by returning a new QueryMaker_ instance wrapping the query.
                     query_maker = self._query_maker._clone()
-                    jp0_old = query_maker._get_joinpoint_zero_class()
                     # Re-run getattr on the raw query, since we don't want to add columns or entities to the query yet. Otherwise, they'd be added twice (here and again when ``to_query`` is called).
                     query_maker._query = getattr(query_maker._query, name)(*args, **kwargs)
                     # If the query involved a join, then the join point has changed. Update what to select.
@@ -254,46 +253,28 @@ class QueryMakerQuery(Query):
 #
 # QueryMakerSession
 # -----------------
-# Create a Session_ which recognizes declarative classes as an attribute. This enables ``session.User['jack']``. See the `database setup` for an example of its use.
+# Create a Session_ which returns a QueryMaker_ when called as a function. This enables ``session(User)['jack']``. See the `database setup` for an example of its use.
 class QueryMakerSession(Session):
-    def __getattr__(self, name):
-        cls = _parent_declarative_class(name)
-        if cls:
-            return QueryMaker(cls, self.query())
-        else:
-            return super().__getattr__(name)
+    def __call__(self, declarative_class):
+        return QueryMaker(declarative_class, self.query())
 
 
 # .. _QueryMakerScopedSession:
 #
 # QueryMakerScopedSession
 # ------------------------
-# By default, SQLAlchemy doesn't proxy ``__getattr__`` in a `scoped session <http://docs.sqlalchemy.org/en/latest/orm/contextual.html>`_. Provide this.
+# Provide QueryMakerSession_ extensions for a `scoped session <http://docs.sqlalchemy.org/en/latest/orm/contextual.html>`_.
 class QueryMakerScopedSession(scoped_session):
-    def __getattr__(self, name):
-        cls = _parent_declarative_class(name)
-        if cls:
-            return QueryMaker(cls, self.registry().query())
+    # Note that the superclass' `__call__ <http://docs.sqlalchemy.org/en/latest/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session.__call__>`_ method only accepts keyword arguments. So, only return a QueryMaker_ if only arguments, not keyword arguments, are given.
+    def __call__(self, *args, **kwargs):
+        if args and not kwargs:
+            return QueryMaker(*args, query=self.registry().query())
         else:
-            return super().__getattr__(name)
+            return super().__call__(*args, **kwargs)
 
 
 # Support routines
 # ----------------
-# Given the name of a declarative class in the caller's parent's stack frame, return it. If it can't be found, return ``None``.
-def _parent_declarative_class(name):
-    # TODO: Shady. I don't see any other way to accomplish this, though.
-    #
-    # Get the parent's caller's `frame record <https://docs.python.org/3/library/inspect.html#the-interpreter-stack>`_.
-    callers_frame_record = py_inspect.stack()[2]
-    # From this, get the `frame object <https://docs.python.org/3/library/inspect.html#types-and-members>`_ (index 0), then the global namespace seen by that frame.
-    g = callers_frame_record[0].f_globals
-    if (name in g) and _is_mapped_class(g[name]):
-        return g[name]
-    else:
-        return None
-
-
 # Copied from https://stackoverflow.com/a/7662943.
 def _is_mapped_class(cls):
     try:

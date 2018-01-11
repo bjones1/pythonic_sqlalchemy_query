@@ -48,7 +48,7 @@ from util import print_query, _print_query
 # Database setup
 # --------------
 engine = create_engine('sqlite:///:memory:')#, echo=True)
-# The `QueryMakerSession` allows syntax such as ``session.User...``. For typical use, you may omit the ``query_cls=QueryMakerQuery``. See `sessionmaker <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker>`_, `query_cls <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.query_cls>`_, and `class_ <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.class_>`_.
+# The `QueryMakerSession` allows syntax such as ``session(User)...``. For typical use, you may omit the ``query_cls=QueryMakerQuery``. See `sessionmaker <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker>`_, `query_cls <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.query_cls>`_, and `class_ <http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.Session.params.class_>`_.
 Session = sessionmaker(bind=engine, query_cls=QueryMakerQuery, class_=QueryMakerSession)
 session = Session()
 
@@ -97,7 +97,7 @@ User.addresses = relationship(
 
 # Create all tables.
 Base.metadata.create_all(engine)
-#
+
 # Test data
 # ---------
 jack = User(name='jack', fullname='Jack Bean', password='gjffdd')
@@ -118,7 +118,7 @@ def test_traditional_versus_pythonic():
     # Create a query to select the Address for 'jack@google.com' from User 'jack'.
     #
     # The Pythonic version of a query:
-    pythonic_query = "session.User['jack'].addresses['jack@google.com']"
+    pythonic_query = "session(User)['jack'].addresses['jack@google.com']"
     print_query(pythonic_query, [jack.addresses[0]], globals())
 
     # The traditional approach:
@@ -136,49 +136,49 @@ def test_traditional_versus_pythonic():
 # -------------
 def test_more_examples():
     # Ask for the full User object for jack.
-    print_query("session.User['jack']", [jack], globals())
+    print_query("session(User)['jack']", [jack], globals())
     # Ask only for Jack's full name.
-    print_query("session.User['jack'].fullname", [(jack.fullname, )], globals())
+    print_query("session(User)['jack'].fullname", [(jack.fullname, )], globals())
     # Get all of Jack's addresses.
-    print_query("session.User['jack'].addresses", jack.addresses, globals())
+    print_query("session(User)['jack'].addresses", jack.addresses, globals())
     # Get just the email-address of all of Jack's addresses.
-    print_query("session.User['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses], globals())
+    print_query("session(User)['jack'].addresses.email_address", [(x.email_address, ) for x in jack.addresses], globals())
     # Get just the email-address j25@yahoo.com of Jack's addresses.
-    print_query("session.User['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]], globals())
+    print_query("session(User)['jack'].addresses['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the full Address object for j25@yahoo.com.
-    print_query("session.Address['j25@yahoo.com']", [jack.addresses[1]], globals())
+    print_query("session(Address)['j25@yahoo.com']", [jack.addresses[1]], globals())
     # Ask for the User associated with this address.
-    print_query("session.Address['j25@yahoo.com'].user", [jack], globals())
+    print_query("session(Address)['j25@yahoo.com'].user", [jack], globals())
     # Use a filter criterion to select a User with a full name of Jack Bean.
-    print_query("session.User[User.fullname == 'Jack Bean']", [jack], globals())
+    print_query("session(User)[User.fullname == 'Jack Bean']", [jack], globals())
     # Use two filter criteria to find the user named jack with a full name of Jack Bean.
-    print_query("session.User['jack'][User.fullname == 'Jack Bean']", [jack], globals())
+    print_query("session(User)['jack'][User.fullname == 'Jack Bean']", [jack], globals())
     # Look for the user with id 1.
-    print_query("session.User[1]", [jack], globals())
+    print_query("session(User)[1]", [jack], globals())
     # Use an SQL expression in the query.
-    print_query("session.User[func.lower(User.fullname) == 'jack bean']", [jack], globals())
+    print_query("session(User)[func.lower(User.fullname) == 'jack bean']", [jack], globals())
     # Ask for all Users.
-    print_query("session.User", [jack], globals())
+    print_query("session(User)", [jack], globals())
     # Ask for the name of all Users.
-    print_query("session.User.name", [(jack.name, )], globals())
+    print_query("session(User).name", [(jack.name, )], globals())
 
     # Transform to a query for indexing.
-    assert _print_query("session.Address.q[1]", globals()) == jack.addresses[1]
+    assert _print_query("session(Address).q[1]", globals()) == jack.addresses[1]
     # Call the ``count`` method on the underlying Query object.
-    assert _print_query("session.Address.q.count()", globals()) == 2
+    assert _print_query("session(Address).q.count()", globals()) == 2
     # Call the ``order_by`` method on the underlying Query object.
-    print_query("session.Address.q.order_by(Address.email_address)", list(reversed([jack.addresses][0])), globals())
+    print_query("session(Address).q.order_by(Address.email_address)", list(reversed([jack.addresses][0])), globals())
     # Use the underlying query object for complex joins.
     adalias1 = aliased(Address)
-    print_query("session.User.q.join(adalias1, User.addresses)['j25@yahoo.com']", [jack.addresses[1]], globals(), locals())
+    print_query("session(User).q.join(adalias1, User.addresses)['j25@yahoo.com']", [jack.addresses[1]], globals(), locals())
 
     # Queries are generative: ``qm`` can be re-used.
-    qm = session.User['jack']
+    qm = session(User)['jack']
     print_query("qm.addresses", jack.addresses, globals(), locals())
     print_query("qm", [jack], globals(), locals())
 
     # Properties and variables can be accessed as usual.
-    cds_str = "session.User['jack'].fullname.q.column_descriptions"
+    cds_str = "session(User)['jack'].fullname.q.column_descriptions"
     print('-'*78)
     print('Code: {}\nResult:'.format(cds_str))
     cds = eval(cds_str)
@@ -192,7 +192,7 @@ def test_more_examples():
 # -----------------
 def test_advanced_examples():
     # Specify exactly what to return by accessing the underlying query.
-    print_query("session.User['jack'].addresses._query.add_columns(User.id, Address.id)", [(1, 1), (1, 2)], globals() )
+    print_query("session(User)['jack'].addresses._query.add_columns(User.id, Address.id)", [(1, 1), (1, 2)], globals() )
 
     # If `QueryMakerSession` isn't used, the session can be provided at the end of the query. However, this means the ``.q`` property won't be useful (since it has no assigned session).
     print_query("User['jack'].to_query(session)", [jack], globals())
@@ -209,7 +209,7 @@ def test_advanced_examples():
 
     # `Baked queries <http://docs.sqlalchemy.org/en/latest/orm/extensions/baked.html>`_ are supported.
     bakery = baked.bakery()
-    baked_query = bakery(lambda session: session.User)
+    baked_query = bakery(lambda session: session(User))
     baked_query += lambda query: query[User.name == bindparam('username')]
     # The last item in the query must end with a ``.q``. Note that this doesn't print nicely. Using ``.to_query()`` instead fixes this.
     baked_query += lambda query: query.q.order_by(User.id).q

@@ -24,7 +24,7 @@
 
 # Third-party imports
 # -------------------
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declarative_base
 from flask import _app_ctx_stack
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.model import Model, DefaultMeta
@@ -38,10 +38,10 @@ from . import QueryMakerScopedSession, QueryMaker
 # ==============================
 # Create a SQLAlchemy class that includes the pythonic_sqlalchemy_query extension. In particular, it supports the following improvements over Flask-SQLAlchemy's `queries <http://flask-sqlalchemy.pocoo.org/2.3/queries/#querying-records>`_:
 #
-# - ``db.session.User['peter'].q.first()`` as a shortcut to ``db.session.query(User).filter_by(username='peter').first()``.
 # - ``User['peter'].q.first()`` as a shortcut for ``User.query.filter_by(username='peter').first()``.
+# - ``db.session(User)['peter'].q.first()`` as a shortcut to ``db.session.query(User).filter_by(username='peter').first()``.
 #
-# To use: ``db = SQLAlchemyPythonicQuery(app)`` instead of ``db = SQLAlchemy(app)``.
+# To use: ``db = SQLAlchemyPythonicQuery(app)`` instead of ``db = SQLAlchemy(app)``, as shown in `../tests/test_flask.py`.
 #
 # Enable syntax such as ``Model[id]`` for queries.
 class QueryMakerFlaskDeclarativeMeta(DefaultMeta):
@@ -68,7 +68,7 @@ class SQLAlchemyPythonicQuery(SQLAlchemy):
 
         super(SQLAlchemyPythonicQuery, self).__init__(*args, **kwargs)
 
-    # Enable syntax such as ``db.session.User['peter']``. The only change from the Flask-SQLAlchemy v2.3.2 source: ``QueryMakerScopedSession`` instead of ``orm.scoped_session``.
+    # Enable syntax such as ``db.session(User)['peter']``. The only change from the Flask-SQLAlchemy v2.3.2 source: ``QueryMakerScopedSession`` instead of ``orm.scoped_session``.
     def create_scoped_session(self, options=None):
         if options is None:
             options = {}
